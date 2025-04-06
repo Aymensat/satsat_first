@@ -1,0 +1,131 @@
+<!-- student-schedule.component.html -->
+<div class="student-space">
+    <!-- Header -->
+    <div class="header">
+      <div class="school-logo">
+        <img src="assets/logo-eni-carthage.png" alt="ENI Carthage" />
+      </div>
+      <h1 class="title">Student Space</h1>
+      <div class="user-info">
+        <span class="user-name">{{selectedField}} - {{selectedYear}} - {{selectedClass}}</span>
+        <div class="notification-icon">
+          <span class="material-icons">notifications</span>
+          <span class="badge" *ngIf="hasUnreadNotifications()">
+            {{getUnreadNotificationsCount()}}
+          </span>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Filters -->
+    <div class="filters">
+      <div class="filter-group">
+        <label>Field</label>
+        <div class="dropdown">
+          <select [(ngModel)]="selectedField" (change)="applyFilters()">
+            <option value="INFORMATIQUE">INFORMATIQUE</option>
+            <option value="INFOTRONIQUE">INFOTRONIQUE</option>
+            <option value="MECATRONIQUE">MECATRONIQUE</option>
+            <option value="INDUSTRIELLE">INDUSTRIELLE</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="filter-group">
+        <label>Year</label>
+        <div class="dropdown">
+          <select [(ngModel)]="selectedYear" (change)="applyFilters()">
+            <option value="1 ere">1 ere</option>
+            <option value="2 eme">2 eme</option>
+            <option value="3 eme">3 eme</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="filter-group">
+        <label>Class</label>
+        <div class="dropdown">
+          <select [(ngModel)]="selectedClass" (change)="applyFilters()">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+          </select>
+        </div>
+      </div>
+      
+      <button class="go-button" (click)="applyFilters()">GO</button>
+    </div>
+  
+    <!-- Week Navigation -->
+    <div class="week-nav">
+      <button class="nav-button" (click)="previousWeek()">
+        <span class="material-icons">chevron_left</span>
+      </button>
+      <div class="current-week">
+        Week of {{ currentDate | date:'d MMMM yyyy' }}
+      </div>
+      <button class="nav-button" (click)="nextWeek()">
+        <span class="material-icons">chevron_right</span>
+      </button>
+      <button class="today-button" (click)="goToToday()">Today</button>
+    </div>
+  
+    <!-- Schedule -->
+    <div class="schedule-container">
+      <table class="schedule">
+        <thead>
+          <tr>
+            <th class="time-header">Time</th>
+            <th *ngFor="let day of weekDays">{{ day }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let time of timeSlots; let i = index">
+            <td class="time-slot">{{ time }}</td>
+            <td *ngFor="let day of weekDays" 
+                [ngClass]="{'has-class': getClassForSlot(day, time), 
+                            'canceled': getClassForSlot(day, time)?.type === 'canceled',
+                            'makeup': getClassForSlot(day, time)?.type === 'makeup'}">
+              <div class="class-block" *ngIf="getClassForSlot(day, time) && !doesClassSpan(day, timeSlots[i-1], time)">
+                <div class="class-subject">{{ getClassForSlot(day, time).subject }}</div>
+                <div class="class-details">
+                  <div class="class-professor">{{ getClassForSlot(day, time).professor }}</div>
+                  <div class="class-room">{{ getClassForSlot(day, time).room }}</div>
+                </div>
+                <div class="class-status" *ngIf="getClassForSlot(day, time).type === 'makeup'">
+                  Rattrapage
+                </div>
+                <div class="class-status" *ngIf="getClassForSlot(day, time).type === 'canceled'">
+                  Annulé
+                </div>
+                <div class="class-comment" *ngIf="getClassForSlot(day, time).comment">
+                  <span class="material-icons">comment</span>
+                  <div class="comment-tooltip">{{ getClassForSlot(day, time).comment }}</div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  
+    <!-- Notifications Panel -->
+    <div class="notifications-panel">
+      <h3>Notifications</h3>
+      <div class="notification-list">
+        <div *ngFor="let notification of notifications" 
+             class="notification-item"
+             [ngClass]="{'unread': !notification.read}"
+             (click)="markNotificationAsRead(notification.id)">
+          <div class="notification-header">
+            <span class="notification-title">{{ notification.title }}</span>
+            <span class="notification-date">{{ notification.date | date:'short' }}</span>
+          </div>
+          <div class="notification-message">{{ notification.message }}</div>
+        </div>
+        <div *ngIf="notifications.length === 0" class="no-notifications">
+          No notifications
+        </div>
+      </div>
+    </div>
+  </div>
