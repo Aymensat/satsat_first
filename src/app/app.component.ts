@@ -1,12 +1,15 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { HomePageComponent } from './home-page/home-page.component';
-import { StudentScheduleComponent } from './student-schedule/student-schedule.component'; 
+
+import { RouterLink, RouterLinkActive  } from '@angular/router';
+
+import {StudentSpaceComponent} from './student-space/student-space.component'
+
 
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, HomePageComponent, StudentScheduleComponent],
+  imports: [RouterOutlet ,  RouterLink, RouterLinkActive ,StudentSpaceComponent  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
