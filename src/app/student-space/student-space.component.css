@@ -1,0 +1,55 @@
+/* full width & even columns */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;   /* equal-width cells */
+  }
+  
+  /* headers */
+  th, td {
+    border: 1px solid #444;
+    padding: 8px;
+  }
+  th {
+    background: #efefef;
+    font-weight: 600;
+  }
+  .time-col {
+    background: #ddd;
+    width: 12%;            /* fixed-ish against 6 days */
+    font-weight: 500;
+  }
+  
+  /* cell = relative for badge */
+  .lesson-cell {
+    position: relative;
+    min-height: 60px;      /* enforce vertical size */
+  }
+  
+  /* subject + teacher */
+  .subject {
+    font-size: 0.95em;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  .teacher {
+    font-size: 0.85em;
+    color: #555;
+  }
+  
+  /* little room badge in corner */
+  .room-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: #48c774;   /* a soft green */
+    color: #fff;
+    font-size: 0.7em;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  

@@ -1,78 +1,67 @@
 <div class="student-space">
     <h2>Student Space</h2>
   
-    <!-- Field Dropdown -->
-    <label for="field">Field</label>
-    <select [(ngModel)]="field" name="field" id="field">
-      <option value="computer_science">Computer Science</option>
-      <option value="infotronics">Infotronics</option>
-      <option value="mechatronics">Mechatronics</option>
-      <option value="gsil">GSIL</option>
-    </select>
+    <!-- Filters -->
+    <div class="filters">
+      <label>
+        Field
+        <select [(ngModel)]="field">
+          <option value="computer_science">Computer Science</option>
+          <option value="infotronics">Infotronics</option>
+          <option value="mechatronics">Mechatronics</option>
+          <option value="gsil">GSIL</option>
+        </select>
+      </label>
   
-    <!-- Year Dropdown -->
-    <label for="year">Year</label>
-    <select [(ngModel)]="classYear" name="year" id="year">
-      <option value="first">First</option>
-      <option value="second">Second</option>
-      <option value="third">Third</option>
-    </select>
+      <label>
+        Year
+        <select [(ngModel)]="classYear">
+          <option value="first">First</option>
+          <option value="second">Second</option>
+          <option value="third">Third</option>
+        </select>
+      </label>
   
-    <!-- Class Dropdown -->
-    <label for="class">Class</label>
-    <select [(ngModel)]="classLetter" name="class" id="class">
-      <option value="a">A</option>
-      <option value="b">B</option>
-      <option value="c">C</option>
-      <option value="d">D</option>
-    </select>
+      <label>
+        Class
+        <select [(ngModel)]="classLetter">
+          <option value="a">A</option>
+          <option value="b">B</option>
+          <option value="c">C</option>
+          <option value="d">D</option>
+        </select>
+      </label>
   
-    <button (click)="onClickHandler()">GO</button>
-
-    
+      <button (click)="onClickHandler()">GO</button>
+    </div>
+  
+    <!-- Timetable -->
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th class="time-col">Heure</th>
+            <th *ngFor="let day of daysOfWeek">{{ day | titlecase }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let slot of timeSlots">
+            <!-- time range -->
+            <td class="time-col">
+              {{ slot.start }} – {{ slot.end }}
+            </td>
+  
+            <!-- one cell per day -->
+            <td *ngFor="let day of daysOfWeek" class="lesson-cell">
+              <ng-container *ngIf="getEntry(day, slot.start) as entry">
+                <div class="subject">{{ entry.subject }}</div>
+                <div class="teacher">{{ entry.teacherName }}</div>
+                <span class="room-badge">{{ entry.room }}</span>
+              </ng-container>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
   
-<style>
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-  }
-  th, td {
-    border: 1px solid #000;
-    padding: 10px;
-    text-align: center;
-  }
-  th {
-    background-color: #f0f0f0;
-  }
-  .time-col {
-    width: 10%;
-    background-color: #e0e0e0;
-    font-weight: bold;
-  }
-</style>
-
-<body>
-
-<table>
-<thead>
-  <tr>
-    <th class="time-col">Heure</th>
-    <th>Lundi</th>
-    <th>Mardi</th>
-    <th>Mercredi</th>
-    <th>Jeudi</th>
-    <th>Vendredi</th>
-    <th>Samedi</th>
-  </tr>
-</thead>
-<tbody>
-  <tr><td class="time-col">08h30 - 10h00</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-  <tr><td class="time-col">10h10 - 11h40</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-  <tr><td class="time-col">11h40 - 12h30</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-  <tr><td class="time-col">12h30 - 14h00</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-  <tr><td class="time-col">14h10 - 15h40</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-  <tr><td class="time-col">15h40 - 17h20</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-</tbody>
-</table>
