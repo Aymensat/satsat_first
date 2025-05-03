@@ -1,0 +1,188 @@
+<p>teacher-space works!</p>
+<div class="teacher-space">
+    <h2>Teacher Space</h2>
+  
+    <!-- Timetable View Selection -->
+    <div class="view-selector">
+      <button [ngClass]="{'active': currentView === 'class'}" (click)="setView('class')">Class Timetable</button>
+      <button [ngClass]="{'active': currentView === 'teacher'}" (click)="setView('teacher')">My Teaching Schedule</button>
+    </div>
+  
+    <!-- Class Timetable View -->
+    <div *ngIf="currentView === 'class'">
+      <!-- Filters -->
+      <div class="filters">
+        <label>
+          Field
+          <select [(ngModel)]="field">
+            <option value="computer_science">Computer Science</option>
+            <option value="infotronics">Infotronics</option>
+            <option value="mechatronics">Mechatronics</option>
+            <option value="gsil">GSIL</option>
+          </select>
+        </label>
+  
+        <label>
+          Year
+          <select [(ngModel)]="classYear">
+            <option value="first">First</option>
+            <option value="second">Second</option>
+            <option value="third">Third</option>
+          </select>
+        </label>
+  
+        <label>
+          Class
+          <select [(ngModel)]="classLetter">
+            <option value="a">A</option>
+            <option value="b">B</option>
+            <option value="c">C</option>
+            <option value="d">D</option>
+          </select>
+        </label>
+  
+        <button (click)="onClickHandler()">GO</button>
+      </div>
+    </div>
+  
+    <!-- Teacher's Schedule View -->
+    <div *ngIf="currentView === 'teacher'">
+      <p class="teacher-info">Viewing your teaching schedule for all classes</p>
+    </div>
+  
+    <!-- Timetable -->
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th class="time-col">Heure</th>
+            <th *ngFor="let day of daysOfWeek">{{ day | titlecase }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let slot of timeSlots">
+            <!-- time range -->
+            <td class="time-col">
+              {{ slot.start }} – {{ slot.end }}
+            </td>
+  
+            <td *ngFor="let day of daysOfWeek"
+                class="lesson-cell clickable"
+                [ngClass]="getCellState(day, slot.start)"
+                (click)="openAnnouncementForm(day, slot.start, slot.end)">
+            
+              <!-- NORMAL -->
+              <ng-container *ngIf="getCellState(day, slot.start) === 'normal'">
+                <ng-container *ngIf="getEntry(day, slot.start) as entry">
+                  <div class="subject">{{ entry.subject }}</div>
+                  <div class="teacher">{{ entry.teacherName }}</div>
+                  <span class="room-badge">{{ entry.room }}</span>
+                </ng-container>
+              </ng-container>
+            
+              <!-- ABSENCE -->
+              <ng-container *ngIf="getCellState(day, slot.start) === 'absence'">
+                <ng-container *ngIf="getEntry(day, slot.start) as entry">
+                  <div class="subject">{{ entry.subject }}</div>
+                  <div class="teacher">{{ entry.teacherName }}</div>
+                  <span class="room-badge">{{ entry.room }}</span>
+                </ng-container>
+                <div class="tooltip">
+                  <ng-container *ngFor="let ann of getAnnouncementsFor(day, slot.start)">
+                    <ng-container *ngIf="ann.type === 'absence'">
+                      <strong>Absent on:</strong>
+                      {{ ann.targetedDate | date:'mediumDate' }}<br>
+                      {{ ann.studentComment }}<br><br>
+                    </ng-container>
+                  </ng-container>
+                </div>
+              </ng-container>
+            
+              <!-- CATCH‑UP -->
+              <ng-container *ngIf="getCellState(day, slot.start) === 'catchup'">
+                <div class="subject">Catch‑up</div>
+                <ng-container *ngFor="let ann of getAnnouncementsFor(day, slot.start)">
+                  <div class="teacher">{{ ann.teacherFullName }}</div>
+                </ng-container>
+                
+                <div class="tooltip">
+                  <ng-container *ngFor="let ann of getAnnouncementsFor(day, slot.start)">
+                    <ng-container *ngIf="ann.type === 'catchup'">
+                      <strong>Catch‑up on:</strong>
+                      {{ann.teacherFullName}} {{ ann.targetedDate | date:'mediumDate' }}<br>
+                      {{ ann.studentComment }}<br><br>
+                    </ng-container>
+                  </ng-container>
+                </div>
+              </ng-container>
+            
+              <!-- BOTH -->
+              <ng-container *ngIf="getCellState(day, slot.start) === 'both'">
+                <div class="subject">Mixed</div>
+                <div class="teacher">…</div>
+                <div class="tooltip">
+                  <strong>Absences:</strong><br>
+                  <ng-container *ngFor="let ann of getAnnouncementsFor(day, slot.start)">
+                    <ng-container *ngIf="ann.type === 'absence'">
+                      – {{ ann.targetedDate | date:'mediumDate' }}: {{ ann.studentComment }}<br>
+                    </ng-container>
+                  </ng-container>
+                  <br>
+                  <strong>Catch-ups:</strong><br>
+                  <ng-container *ngFor="let ann of getAnnouncementsFor(day, slot.start)">
+                    <ng-container *ngIf="ann.type === 'catchup'">
+                      – {{ann.teacherFullName}} {{ ann.targetedDate | date:'mediumDate' }}: {{ ann.studentComment }}<br>
+                    </ng-container>
+                  </ng-container>
+                </div>
+              </ng-container>
+  
+              <!-- For Teacher Schedule View -->
+              <ng-container *ngIf="currentView === 'teacher' && getTeacherEntry(day, slot.start) as entry">
+                <div class="class-badge">{{ entry.field }} {{ entry.classYear }} {{ entry.classLetter | uppercase }}</div>
+              </ng-container>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  
+    <!-- Announcement Form Modal -->
+    <div class="modal" *ngIf="showAnnouncementForm">
+      <div class="modal-content">
+        <span class="close" (click)="closeAnnouncementForm()">&times;</span>
+        <h3>Create Announcement</h3>
+        <p>{{ selectedDay | titlecase }} at {{ selectedTimeStart }} - {{ selectedTimeEnd }}</p>
+  
+        <form (ngSubmit)="submitAnnouncement()">
+          <div class="form-group">
+            <label for="announcementType">Type:</label>
+            <select id="announcementType" [(ngModel)]="announcementForm.type" name="type">
+              <option value="absence">Absence</option>
+              <option value="catchup">Catch-up</option>
+            </select>
+          </div>
+  
+          <div class="form-group">
+            <label for="targetedDate">Date:</label>
+            <input type="date" id="targetedDate" [(ngModel)]="announcementForm.targetedDate" name="targetedDate">
+          </div>
+  
+          <div class="form-group">
+            <label for="studentComment">Comment for Students:</label>
+            <textarea id="studentComment" [(ngModel)]="announcementForm.studentComment" name="studentComment" rows="3"></textarea>
+          </div>
+  
+          <div class="form-group">
+            <label for="adminComment">Comment for Administration:</label>
+            <textarea id="adminComment" [(ngModel)]="announcementForm.administratorComment" name="administratorComment" rows="3"></textarea>
+          </div>
+  
+          <div class="form-actions">
+            <button type="button" (click)="closeAnnouncementForm()">Cancel</button>
+            <button type="submit">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>

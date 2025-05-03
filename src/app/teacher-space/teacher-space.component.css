@@ -1,0 +1,257 @@
+/* full width & even columns */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 20px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;   /* equal-width cells */
+  }
+  
+  /* headers */
+  th, td {
+    border: 1px solid #444;
+    padding: 8px;
+  }
+  
+  th {
+    background: #efefef;
+    font-weight: 600;
+  }
+  
+  .time-col {
+    background: #ddd;
+    width: 12%;            /* fixed-ish against 6 days */
+    font-weight: 500;
+  }
+  
+  .lesson-cell {
+    position: relative;
+    overflow: visible;
+    transition: background 0.2s;
+    min-height: 80px;
+    height: 80px;
+    vertical-align: top;
+  }
+  
+  /* Clickable cells */
+  .lesson-cell.clickable {
+    cursor: pointer;
+  }
+  
+  .lesson-cell.clickable:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  /* base tooltip styling for all states */
+  .lesson-cell .tooltip {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 6px;
+    padding: 6px;
+    background: #eee;
+    color: #222;
+    font-size: 0.8em;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    white-space: pre-wrap;
+    z-index: 100;
+    width: 200px;
+  }
+  
+  /* show tooltip on hover */
+  .lesson-cell:hover .tooltip {
+    display: block;
+  }
+  
+  /* color by state */
+  .lesson-cell.absence {
+    background: rgba(255, 0, 0, 0.2);
+  }
+  
+  .lesson-cell.catchup {
+    background: rgba(0, 0, 255, 0.2);
+  }
+  
+  .lesson-cell.both {
+    background: rgba(128, 0, 128, 0.2);
+  }
+  
+  /* subject + teacher */
+  .subject {
+    font-size: 0.95em;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  
+  .teacher {
+    font-size: 0.85em;
+    color: #555;
+  }
+  
+  /* little room badge in corner */
+  .room-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: #48c774;   /* a soft green */
+    color: #fff;
+    font-size: 0.7em;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  
+  /* Class badge for teacher view */
+  .class-badge {
+    display: inline-block;
+    background: #3273dc;  /* blue */
+    color: #fff;
+    font-size: 0.8em;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+  }
+  
+  /* View selector */
+  .view-selector {
+    margin: 15px 0;
+    display: flex;
+    gap: 10px;
+  }
+  
+  .view-selector button {
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    background: #f5f5f5;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  .view-selector button.active {
+    background: #3273dc;
+    color: white;
+    border-color: #3273dc;
+  }
+  
+  .teacher-info {
+    margin: 10px 0;
+    font-style: italic;
+    color: #666;
+  }
+  
+  /* Filters */
+  .filters {
+    display: flex;
+    gap: 15px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .filters label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 0.9em;
+  }
+  
+  .filters select {
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  .filters button {
+    align-self: flex-end;
+    padding: 8px 15px;
+    background: #3273dc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 18px;
+  }
+  
+  .filters button:hover {
+    background: #2866c2;
+  }
+  
+  /* Modal */
+  .modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+  }
+  
+  .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  
+  /* Form styling */
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  
+  .form-group input, 
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .form-actions button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .form-actions button[type="submit"] {
+    background: #48c774;
+    color: white;
+    border: none;
+  }
+  
+  .form-actions button[type="button"] {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+  }
