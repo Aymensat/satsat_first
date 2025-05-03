@@ -1,19 +1,25 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-
-import { RouterLink, RouterLinkActive  } from '@angular/router';
-
-import {StudentSpaceComponent} from './student-space/student-space.component'
-import { TeacherSpaceComponent } from './teacher-space/teacher-space.component';
-
-
+import { NavbarComponent } from './navbar/navbar.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet ,  RouterLink, RouterLinkActive ,StudentSpaceComponent  , TeacherSpaceComponent ],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  standalone: true,
+  imports: [RouterOutlet, NavbarComponent],
+  template: `
+    <app-navbar></app-navbar>
+    <div class="container">
+      <router-outlet></router-outlet>
+    </div>
+  `,
+  styles: [`
+    .container {
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+  `]
 })
 export class AppComponent {
-  title = 'my_project';
+  title = 'school-timetable-system';
 }

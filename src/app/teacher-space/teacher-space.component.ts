@@ -29,6 +29,9 @@ export class TeacherSpaceComponent implements OnInit {
   timetable: TimetableDTO[] = [];
   teacherTimetable: TimetableDTO[] = [];
   announcements: AnnouncementDTOForStudents[] = [];
+  
+  // UI states
+  isLoading = false;
 
   // Modal control
   showAnnouncementForm = false;
@@ -82,34 +85,61 @@ export class TeacherSpaceComponent implements OnInit {
   }
 
   onClickHandler() {
+    this.isLoading = true;
+    
     // Load class timetable
     this.teacherService
       .getTimeTable(this.field, this.classYear, this.classLetter)
-      .subscribe(data => {
-        this.timetable = data;
-        // Update form with current selection
-        this.announcementForm.field = this.field;
-        this.announcementForm.classYear = this.classYear;
-        this.announcementForm.classLetter = this.classLetter;
-        // Load announcements
-        this.loadAnnouncements();
+      .subscribe({
+        next: (data) => {
+          this.timetable = data;
+          // Update form with current selection
+          this.announcementForm.field = this.field;
+          this.announcementForm.classYear = this.classYear;
+          this.announcementForm.classLetter = this.classLetter;
+          // Load announcements
+          this.loadAnnouncements();
+        },
+        error: (err) => {
+          console.error('Error loading timetable:', err);
+          alert('Failed to load timetable. Please try again.');
+          this.isLoading = false;
+        }
       });
   }
 
   loadAnnouncements() {
     this.teacherService
       .getAnnouncements(this.field, this.classYear, this.classLetter)
-      .subscribe(data => {
-        this.announcements = data;
-        this.buildAnnouncementsMap();
+      .subscribe({
+        next: (data) => {
+          this.announcements = data;
+          this.buildAnnouncementsMap();
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Error loading announcements:', err);
+          this.isLoading = false;
+        }
       });
   }
 
   loadTeacherTimetable() {
+    this.isLoading = true;
+    
     this.teacherService
       .getTeacherTimetable()
-      .subscribe(data => {
-        this.teacherTimetable = data;
+      .subscribe({
+        next: (data) => {
+          this.teacherTimetable = data;
+          console.log('Teacher timetable loaded:', data);
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Error loading teacher timetable:', err);
+          alert('Failed to load your teaching schedule. Please try again.');
+          this.isLoading = false;
+        }
       });
   }
 
@@ -179,6 +209,17 @@ export class TeacherSpaceComponent implements OnInit {
   }
 
   submitAnnouncement() {
+    // Form validation
+    if (!this.announcementForm.targetedDate) {
+      alert('Please select a date for the announcement');
+      return;
+    }
+    
+    if (!this.announcementForm.studentComment) {
+      alert('Please add a comment for students');
+      return;
+    }
+    
     // Convert form date to ISO format with selected time
     const datePart = this.announcementForm.targetedDate;
     const timePart = this.selectedTimeStart + ':00';
@@ -191,18 +232,24 @@ export class TeacherSpaceComponent implements OnInit {
     };
     
     // Submit announcement
-    this.teacherService.sendAnnouncement(announcement).subscribe(
-      response => {
+    this.teacherService.sendAnnouncement(announcement).subscribe({
+      next: (response) => {
         console.log('Announcement submitted:', response);
+        alert('Announcement submitted successfully!');
         this.closeAnnouncementForm();
         
         // Refresh announcements
         this.loadAnnouncements();
+        
+        // If we're in teacher view, also refresh teacher timetable to show updates
+        if (this.currentView === 'teacher') {
+          this.loadTeacherTimetable();
+        }
       },
-      error => {
+      error: (error) => {
         console.error('Error submitting announcement:', error);
-        // Handle error (could add error handling UI here)
+        alert('Failed to submit announcement. Please try again.');
       }
-    );
+    });
   }
 }

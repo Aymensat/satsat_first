@@ -1,4 +1,3 @@
-<p>teacher-space works!</p>
 <div class="teacher-space">
     <h2>Teacher Space</h2>
   
@@ -50,8 +49,14 @@
       <p class="teacher-info">Viewing your teaching schedule for all classes</p>
     </div>
   
+    <!-- Loading indicator -->
+    <div *ngIf="isLoading" class="loading-indicator">
+      <div class="spinner"></div>
+      <p>Loading timetable...</p>
+    </div>
+  
     <!-- Timetable -->
-    <div class="table-wrapper">
+    <div class="table-wrapper" *ngIf="!isLoading">
       <table>
         <thead>
           <tr>
@@ -139,7 +144,9 @@
   
               <!-- For Teacher Schedule View -->
               <ng-container *ngIf="currentView === 'teacher' && getTeacherEntry(day, slot.start) as entry">
-                <div class="class-badge">{{ entry.field }} {{ entry.classYear }} {{ entry.classLetter | uppercase }}</div>
+                <div class="subject">{{ entry.subject }}</div>
+                <div class="class-badge">{{ entry.field | titlecase }} {{ entry.classYear | titlecase }} {{ entry.classLetter | uppercase }}</div>
+                <span class="room-badge">{{ entry.room }}</span>
               </ng-container>
             </td>
           </tr>
