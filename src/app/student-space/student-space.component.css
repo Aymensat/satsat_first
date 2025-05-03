@@ -23,11 +23,45 @@
     width: 12%;            /* fixed-ish against 6 days */
     font-weight: 500;
   }
-  
-  /* cell = relative for badge */
   .lesson-cell {
     position: relative;
-    min-height: 60px;      /* enforce vertical size */
+    overflow: visible;
+    transition: background 0.2s;
+  }
+  
+  /* base tooltip styling for all states */
+  .lesson-cell .tooltip {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 6px;
+    padding: 6px;
+    background: #eee;
+    color: #222;
+    font-size: 0.8em;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    white-space: pre-wrap;
+    z-index: 100;
+  }
+  
+  /* show tooltip on hover */
+  .lesson-cell:hover .tooltip {
+    display: block;
+  }
+  
+  /* color by state */
+  .lesson-cell.absence {
+    background: rgba(255, 0, 0, 0.2);
+  }
+  
+  .lesson-cell.catchup {
+    background: rgba(0, 0, 255, 0.2);
+  }
+  
+  .lesson-cell.both {
+    background: rgba(128, 0, 128, 0.2);
   }
   
   /* subject + teacher */

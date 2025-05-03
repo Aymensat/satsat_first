@@ -9,7 +9,7 @@ import {StudentSpaceComponent} from './student-space/student-space.component'
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet ,  RouterLink, RouterLinkActive ,StudentSpaceComponent  ],
+  imports: [RouterOutlet ,  RouterLink, RouterLinkActive ,StudentSpaceComponent   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

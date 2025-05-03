@@ -22,9 +22,21 @@ export interface AnnouncementDTOForStudents {
   teacherFullName: string;
   teacherEmail: string;
   type: 'absence' | 'catchup';
-  targetedDate: string; // ISO format
+  targetedDate: string; 
+  weekday : string
   studentComment: string;
 }
+
+export interface AnnouncementDTOForTeachers {
+  field: string;
+  classYear: string;
+  classLetter: string;
+  targetedDate: string; // ISO string with time, e.g., "2025-05-03T08:30:00"
+  type: 'absence' | 'catchup';
+  studentComment: string;
+  administratorComment: string;
+}
+
 
 
 @Injectable({

@@ -1,67 +1,134 @@
-<div class="student-space">
-    <h2>Student Space</h2>
-  
-    <!-- Filters -->
-    <div class="filters">
-      <label>
-        Field
-        <select [(ngModel)]="field">
-          <option value="computer_science">Computer Science</option>
-          <option value="infotronics">Infotronics</option>
-          <option value="mechatronics">Mechatronics</option>
-          <option value="gsil">GSIL</option>
-        </select>
-      </label>
-  
-      <label>
-        Year
-        <select [(ngModel)]="classYear">
-          <option value="first">First</option>
-          <option value="second">Second</option>
-          <option value="third">Third</option>
-        </select>
-      </label>
-  
-      <label>
-        Class
-        <select [(ngModel)]="classLetter">
-          <option value="a">A</option>
-          <option value="b">B</option>
-          <option value="c">C</option>
-          <option value="d">D</option>
-        </select>
-      </label>
-  
-      <button (click)="onClickHandler()">GO</button>
-    </div>
-  
-    <!-- Timetable -->
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th class="time-col">Heure</th>
-            <th *ngFor="let day of daysOfWeek">{{ day | titlecase }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let slot of timeSlots">
-            <!-- time range -->
-            <td class="time-col">
-              {{ slot.start }} – {{ slot.end }}
-            </td>
-  
-            <!-- one cell per day -->
-            <td *ngFor="let day of daysOfWeek" class="lesson-cell">
+  <div class="student-space">
+      <h2>Student Space</h2>
+    
+      <!-- Filters -->
+      <div class="filters">
+        <label>
+          Field
+          <select [(ngModel)]="field">
+            <option value="computer_science">Computer Science</option>
+            <option value="infotronics">Infotronics</option>
+            <option value="mechatronics">Mechatronics</option>
+            <option value="gsil">GSIL</option>
+          </select>
+        </label>
+    
+        <label>
+          Year
+          <select [(ngModel)]="classYear">
+            <option value="first">First</option>
+            <option value="second">Second</option>
+            <option value="third">Third</option>
+          </select>
+        </label>
+    
+        <label>
+          Class
+          <select [(ngModel)]="classLetter">
+            <option value="a">A</option>
+            <option value="b">B</option>
+            <option value="c">C</option>
+            <option value="d">D</option>
+          </select>
+        </label>
+    
+        <button (click)="onClickHandler()">GO</button>
+      </div>
+    
+      <!-- Timetable -->
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th class="time-col">Heure</th>
+              <th *ngFor="let day of daysOfWeek">{{ day | titlecase }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let slot of timeSlots">
+              <!-- time range -->
+              <td class="time-col">
+                {{ slot.start }} – {{ slot.end }}
+              </td>
+    
+              <td *ngFor="let day of daysOfWeek"
+              class="lesson-cell"
+              [ngClass]="getCellState(day, slot.start)">
+            
+            <!-- NORMAL -->
+            <ng-container *ngIf="getCellState(day, slot.start) === 'normal'">
               <ng-container *ngIf="getEntry(day, slot.start) as entry">
                 <div class="subject">{{ entry.subject }}</div>
                 <div class="teacher">{{ entry.teacherName }}</div>
                 <span class="room-badge">{{ entry.room }}</span>
               </ng-container>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </ng-container>
+          
+            <!-- ABSENCE‑ONLY: keep lesson if exists, but tint red -->
+            <ng-container *ngIf="getCellState(day, slot.start) === 'absence'">
+              <ng-container *ngIf="getEntry(day, slot.start) as entry">
+                <div class="subject">{{ entry.subject }}</div>
+                <div class="teacher">{{ entry.teacherName }}</div>
+                <span class="room-badge">{{ entry.room }}</span>
+              </ng-container>
+              <div class="tooltip">
+                <ng-container *ngFor="let ann of getAnnouncementsFor(day, slot.start)">
+                  <ng-container *ngIf="ann.type === 'absence'">
+                    <strong>Absent on:</strong>
+                    {{ ann.targetedDate | date:'mediumDate' }}<br>
+                    {{ ann.studentComment }}<br><br>
+                  </ng-container>
+                </ng-container>
+              </div>
+              
+            </ng-container>
+          
+            <!-- CATCH‑UP‑ONLY: render like a session, blue bg -->
+            <ng-container *ngIf="getCellState(day, slot.start) === 'catchup'">
+              <div class="subject">Catch‑up</div>
+              <ng-container *ngFor="let ann of getAnnouncementsFor(day, slot.start)">
+                <div class="teacher">{{ ann.teacherFullName }}</div>
+              </ng-container>
+              
+              <div class="tooltip">
+                <ng-container *ngFor="let ann of getAnnouncementsFor(day, slot.start)">
+                  <ng-container *ngIf="ann.type === 'catchup'">
+                    <strong>Catch‑up on:</strong>
+                    {{ann.teacherFullName}}    {{ ann.targetedDate | date:'mediumDate' }}<br>
+                    {{ ann.studentComment }}<br><br>
+                  </ng-container>
+                </ng-container>
+              </div>
+              
+            </ng-container>
+          
+            <!-- BOTH: purple + list both -->
+            <ng-container *ngIf="getCellState(day, slot.start) === 'both'">
+              <div class="subject">Mixed</div>
+              <div class="teacher">…</div>
+              <div class="tooltip">
+                <strong>Absences:</strong><br>
+                <ng-container *ngFor="let ann of getAnnouncementsFor(day, slot.start)">
+                  <ng-container *ngIf="ann.type === 'absence'">
+                    – {{ ann.targetedDate | date:'mediumDate' }}: {{ ann.studentComment }}<br>
+                  </ng-container>
+                </ng-container>
+                <br>
+                <strong>Catch-ups:</strong><br>
+                <ng-container *ngFor="let ann of getAnnouncementsFor(day, slot.start)">
+                  <ng-container *ngIf="ann.type === 'catchup'">
+                    – {{ann.teacherFullName}} {{ ann.targetedDate | date:'mediumDate' }}: {{ ann.studentComment }}<br>
+                  </ng-container>
+                </ng-container>
+              </div>
+              
+            </ng-container>
+          </td>
+          
+              
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-  
+    
