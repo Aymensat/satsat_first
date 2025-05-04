@@ -10,7 +10,7 @@ import { AuthService } from '../services/auth.service';
   imports: [FormsModule, CommonModule],
   template: `
     <div class="login-container">
-      <h2>Teacher Login</h2>
+      <h2>Login</h2>
       <form (ngSubmit)="onSubmit()">
         <div class="form-group">
           <label for="username">Username</label>
@@ -104,8 +104,15 @@ export class LoginComponent {
     this.authService.login(this.username, this.password).subscribe({
       next: () => {
         this.isLoading = false;
-        // Navigate to teacher space after successful login
-        this.router.navigate(['/teacher']);
+        
+        // Check if user is admin and redirect appropriately
+        if (this.authService.checkAdminRole()) {
+          console.log('Admin user detected, redirecting to admin page');
+          this.router.navigate(['/admin']);
+        } else {
+          console.log('Teacher user detected, redirecting to teacher page');
+          this.router.navigate(['/teacher']);
+        }
       },
       error: (err) => {
         this.isLoading = false;

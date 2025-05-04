@@ -1,0 +1,147 @@
+<p>admin-space works!</p>
+<div class="admin-space">
+    <h2>Administration Space</h2>
+    <h3>Announcement Management</h3>
+    
+    <!-- Filters -->
+    <div class="filters">
+      <label>
+        Announcement Type
+        <select [(ngModel)]="filters.type" (change)="applyFilters()">
+          <option value="all">All Types</option>
+          <option value="absence">Absence</option>
+          <option value="catchup">Catch-up</option>
+        </select>
+      </label>
+      
+      <label>
+        Status
+        <select [(ngModel)]="filters.state" (change)="applyFilters()">
+          <option value="all">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </label>
+      
+      <label>
+        Field
+        <select [(ngModel)]="filters.field" (change)="applyFilters()">
+          <option value="all">All Fields</option>
+          <option value="computer_science">Computer Science</option>
+          <option value="infotronics">Infotronics</option>
+          <option value="mechatronics">Mechatronics</option>
+          <option value="gsil">GSIL</option>
+        </select>
+      </label>
+      
+      <label>
+        Year
+        <select [(ngModel)]="filters.classYear" (change)="applyFilters()">
+          <option value="all">All Years</option>
+          <option value="first">First</option>
+          <option value="second">Second</option>
+          <option value="third">Third</option>
+        </select>
+      </label>
+    </div>
+    
+    <!-- Loading indicator -->
+    <div *ngIf="isLoading" class="loading-indicator">
+      <div class="spinner"></div>
+      <p>Loading announcements...</p>
+    </div>
+    
+    <!-- Announcement Table -->
+    <div class="table-wrapper" *ngIf="!isLoading">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Teacher</th>
+            <th>Class</th>
+            <th>Type</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ann of filteredAnnouncements" [ngClass]="getStateClass(ann.state)">
+            <td>#{{ ann.id }}</td>
+            <td>
+              <div>{{ ann.teacherFullName }}</div>
+              <div class="email">{{ ann.teacherEmail }}</div>
+            </td>
+            <td>
+              {{ ann.field | titlecase }} {{ ann.classYear | titlecase }} {{ ann.classLetter | uppercase }}
+            </td>
+            <td>
+              <span class="badge" [ngClass]="getTypeClass(ann.type)">
+                {{ ann.type | titlecase }}
+              </span>
+            </td>
+            <td>{{ formatDate(ann.targetedDate) }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="getStateClass(ann.state)">
+                {{ ann.state | titlecase }}
+              </span>
+            </td>
+            <td>{{ formatDate(ann.createdAt) }}</td>
+            <td>
+              <button class="action-btn" (click)="openApprovalForm(ann)">
+                Review
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div *ngIf="filteredAnnouncements.length === 0" class="no-results">
+        No announcements found matching the selected filters.
+      </div>
+    </div>
+    
+    <!-- Approval Form Modal -->
+    <div class="modal" *ngIf="showApprovalForm">
+      <div class="modal-content">
+        <span class="close" (click)="closeApprovalForm()">&times;</span>
+        <h3>Review Announcement</h3>
+        
+        <div *ngIf="currentAnnouncement" class="announcement-details">
+          <p><strong>Teacher:</strong> {{ currentAnnouncement.teacherFullName }}</p>
+          <p><strong>Class:</strong> {{ currentAnnouncement.field | titlecase }} {{ currentAnnouncement.classYear | titlecase }} {{ currentAnnouncement.classLetter | uppercase }}</p>
+          <p><strong>Type:</strong> {{ currentAnnouncement.type | titlecase }}</p>
+          <p><strong>Date:</strong> {{ formatDate(currentAnnouncement.targetedDate) }}</p>
+          <p><strong>Student Comment:</strong> {{ currentAnnouncement.studentComment }}</p>
+          <hr>
+        </div>
+        
+        <form [formGroup]="approvalForm" (ngSubmit)="submitApproval()">
+          <div class="form-group">
+            <label for="state">Decision:</label>
+            <select id="state" formControlName="state">
+              <option value="approved">Approve</option>
+              <option value="rejected">Reject</option>
+              <option value="pending">Keep Pending</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="administratorComment">Administrative Comment:</label>
+            <textarea 
+              id="administratorComment" 
+              formControlName="administratorComment" 
+              rows="3"
+              placeholder="Add comments or notes about this decision..."></textarea>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" (click)="closeApprovalForm()">Cancel</button>
+            <button type="submit">Submit Decision</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>

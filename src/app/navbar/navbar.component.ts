@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -13,6 +15,7 @@ import { AuthService } from '../services/auth.service';
       <div class="nav-links">
         <a routerLink="/student" routerLinkActive="active">Student View</a>
         <a routerLink="/teacher" routerLinkActive="active" *ngIf="isAuthenticated">Teacher View</a>
+        <a routerLink="/admin" routerLinkActive="active" *ngIf="isAdmin">Admin View</a>
         <a routerLink="/login" routerLinkActive="active" *ngIf="!isAuthenticated">Login</a>
         <button *ngIf="isAuthenticated" (click)="logout()">Logout</button>
       </div>
@@ -54,18 +57,45 @@ import { AuthService } from '../services/auth.service';
     }
   `]
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
   isAuthenticated = false;
+  isAdmin = false;
   
-  constructor(private authService: AuthService) {}
+  private authSubscription: Subscription | null = null;
+  private adminSubscription: Subscription | null = null;
+  
+  constructor(private authService: AuthService, private router: Router) {}
   
   ngOnInit(): void {
-    this.authService.isAuthenticated().subscribe(auth => {
+    // Subscribe to authentication state
+    this.authSubscription = this.authService.isAuthenticated().subscribe(auth => {
       this.isAuthenticated = auth;
+      
+      // If not authenticated, ensure admin is also false
+      if (!auth) {
+        this.isAdmin = false;
+      }
     });
+    
+    // Subscribe to admin state separately
+    this.adminSubscription = this.authService.isAdmin().subscribe(isAdmin => {
+      this.isAdmin = isAdmin;
+      console.log('Admin status updated:', isAdmin);
+    });
+  }
+  
+  ngOnDestroy(): void {
+    // Clean up subscriptions when component is destroyed
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
+    if (this.adminSubscription) {
+      this.adminSubscription.unsubscribe();
+    }
   }
   
   logout(): void {
     this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

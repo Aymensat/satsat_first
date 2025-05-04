@@ -1,17 +1,13 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './login/login.component';
-import { TeacherSpaceComponent } from './teacher-space/teacher-space.component';
-import { StudentSpaceComponent } from './student-space/student-space.component';
+import { AdminSpaceComponent } from './admin-space/admin-space.component';
 import { authGuard } from './guards/auth.guard';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
-  { 
-    path: 'teacher', 
-    component: TeacherSpaceComponent,
-    canActivate: [authGuard]  // Protect this route with auth guard
-  },
-  { path: 'student', component: StudentSpaceComponent },
-  { path: '**', redirectTo: '/login' }
+  { path: '', redirectTo: '/student', pathMatch: 'full' },
+  { path: 'student', loadComponent: () => import('./student-space/student-space.component').then(c => c.StudentSpaceComponent) },
+  { path: 'teacher', loadComponent: () => import('./teacher-space/teacher-space.component').then(c => c.TeacherSpaceComponent), canActivate: [authGuard] },
+  { path: 'admin', component: AdminSpaceComponent, canActivate: [authGuard, adminGuard] },
+  { path: 'login', loadComponent: () => import('./login/login.component').then(c => c.LoginComponent) },
+  { path: '**', redirectTo: '/student' }
 ];
