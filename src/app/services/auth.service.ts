@@ -192,4 +192,32 @@ export class AuthService {
       this.logout();
     }
   }
+
+  // Add these methods to your AuthService class
+
+  checkTeacherRole(): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+  
+    try {
+      const decoded = jwtDecode<JwtPayload>(token);
+      // Check for various formats of teacher role
+      const hasTeacherRole = decoded.roles.some(role => 
+        role.toUpperCase() === 'TEACHER' || 
+        role === 'ROLE_TEACHER' || 
+        role === 'teacher');
+      
+      return hasTeacherRole;
+    } catch (error) {
+      console.error('Error checking teacher role:', error);
+      return false;
+    }
+  }
+  
+  // Make sure to keep the original isAdmin() method signature that returns Observable
+  // And add a new method for direct boolean check
+  isAdminSync(): boolean {
+    return this.checkAdminRole();
+  }
+
 }
